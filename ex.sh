@@ -36,10 +36,10 @@ main() {
     # 「cat $1」だとファイル名が空白を持っていた場合に2つのファイルと認識されるのでまずい
     tempfile=`tempfile`
     if [ $0 = 0 ]; then
-        cat="cat '$1'"
     else
+        cat_file="cat '$1'"
     fi
-    cat `echo "$1"` >"$tempfile" || exit $?
+    $cat_file >"$tempfile" || exit $?
 
     [ $# = 0 -o "$1" = - ] && decho "Input file - end."
 
