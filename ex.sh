@@ -6,8 +6,6 @@ false="/bin/false"
 success=0
 failure=1
 
-EX="ex -N -u NORC --noplugin -"
-
 
 
 usage() {
@@ -15,7 +13,7 @@ usage() {
 
     cat <<EOM
     Usage
-        $progname [{options}] [--] [{file} [{script}]]
+        $progname [{options}] [--] [{script} [{file}]]
 
     Options
         -h
@@ -25,56 +23,113 @@ EOM
     exit 1
 }
 
+die() {
+    echo "$@" >&2
+    exit 1
+}
+
 decho() {
     $verbose && echo "debug:" "$@" >&2
 }
 
-main() {
-    [ $# = 0 -o "$1" = - ] && decho "Input file:"
+add_tempfiles() {
+    [ $# = 0 ] && return
+    register_remove_all_tempfiles
+    for f in "$@"; do
+        all_tempfiles="$all_tempfiles '$f'"
+    done
+}
 
+is_registered_remove_all_tempfiles="$false"
+register_remove_all_tempfiles() {
+    $is_registered_remove_all_tempfiles || {
+        trap 'remove_all_tempfiles' 0 HUP INT QUIT TERM
+        is_registered_remove_all_tempfiles="$true"
+    }
+}
+
+remove_all_tempfiles() {
+    x=$?
+    $is_registered_remove_all_tempfiles && {
+        for t in "$all_tempfiles"; do
+            decho "cleaning up $f..."
+            rm -f "$t"
+        done
+    }
+    exit $x
+}
+
+get_clone_tempfile() {
     tempfile=`tempfile`
-    trap "x=$?; rm -f '$tempfile'; exit $x" 0 HUP INT QUIT TERM
+    add_tempfiles "$tempfile"
 
-    # 「cat "$1"」だと空だった場合「''」を開こうとするのでまずい
-    # 「cat $1」だとファイル名が空白を持っていた場合に2つのファイルと認識されるのでまずい
     if [ $# = 0 ]; then
         cat
     else
-        cat "$1"
+        cat "$@"
     fi >"$tempfile" || exit $?
+    echo "$tempfile"
+}
 
-    [ $# = 0 -o "$1" = - ] && decho "Input file - end."
+get_script() {
+    cat "$@" || exit $?
+    $auto_write && echo "write"
+    $auto_quit  && echo "quit!"
+}
 
-    [ $# -le 1 -o "$2" = - ] && decho "Input script:"
+run_file() {
+    [ $# -ge 2 ] || die "invalid args"
 
-    {
-        # 同上
-        if [ $# -le 1 ]; then
-            cat
-        else
-            cat "$2"
-        fi
-        $auto_write && echo "write"
-        $auto_quit  && echo "quit!"
-        [ $# -le 1 -o "$2" = - ] && decho "Input script - end."
-    } | $EX "$tempfile"
-    cat "$tempfile"
+    script="$1"
+    shift
+    decho "script: [$script]"
+
+    for f in "$@"; do
+        t=`get_clone_tempfile "$f"`
+        echo "$script" | $EX "$t"
+        cat "$t"
+    done
+}
+
+build_ex_command() {
+    EX="ex"
+    if $compatible; then
+        EX="$EX -N"
+    fi
+    if ! $load_conf; then
+        EX="$EX -u NORC --noplugin"
+    fi
+    if $quiet; then
+        EX="$EX -"
+    fi
+}
+
+main() {
+    build_ex_command
+    case $# in
+        0) quiet="$false"; build_ex_command; exec $EX ;;
+        1) get_script "$1" | $EX ;;
+        *) out=`get_script "$1"`; shift; run_file "$out" "$@" ;;
+    esac
 }
 
 
 verbose="$false"
 auto_write="$true"
 auto_quit="$true"
+compatible="$true"
+load_conf="$false"
+quiet="$false"
 
 
-while getopts hvVwWqQ opt; do
+while getopts hvWQclq opt; do
     case $opt in
         v) verbose="$true" ;;
-        V) verbose="$false" ;;
-        w) auto_write="$true" ;;
         W) auto_write="$false" ;;
-        q) auto_quit="$true" ;;
         Q) auto_quit="$false" ;;
+        C) compatible="$false" ;;
+        l) load_conf="$true" ;;
+        q) quiet="$true" ;;
         h) usage ;;
         ?) usage ;;
     esac
