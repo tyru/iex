@@ -33,6 +33,7 @@ main() {
     [ $# = 0 -o "$1" = - ] && decho "Input file:"
 
     tempfile=`tempfile`
+    trap "x=$?; rm -f '$tempfile'; exit $x" 0 1 2 3 15
 
     # 「cat "$1"」だと空だった場合「''」を開こうとするのでまずい
     # 「cat $1」だとファイル名が空白を持っていた場合に2つのファイルと認識されるのでまずい
