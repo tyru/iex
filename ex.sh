@@ -55,7 +55,7 @@ main() {
             cat "$2"
         fi
         $auto_write && echo "write"
-        $auto_quit  && echo "quit"
+        $auto_quit  && echo "quit!"
         [ $# -le 1 -o "$2" = - ] && decho "Input script - end."
     } | $EX "$tempfile"
     cat "$tempfile"
