@@ -37,11 +37,10 @@ main() {
     # 「cat "$1"」だと空だった場合「''」を開こうとするのでまずい
     # 「cat $1」だとファイル名が空白を持っていた場合に2つのファイルと認識されるのでまずい
     if [ $# = 0 ]; then
-        cat_file="cat"
+        cat
     else
-        cat_file="cat '$1'"
-    fi
-    $cat_file >"$tempfile" || exit $?
+        cat "$1"
+    fi >"$tempfile" || exit $?
 
     [ $# = 0 -o "$1" = - ] && decho "Input file - end."
 
@@ -50,11 +49,10 @@ main() {
     {
         # 同上
         if [ $# -le 1 ]; then
-            cat_file="cat"
+            cat
         else
-            cat_file="cat '$1'"
+            cat "$2"
         fi
-        $cat_file
         $auto_write && echo "write"
         $auto_quit  && echo "quit"
         [ $# -le 1 -o "$2" = - ] && decho "Input script - end."
