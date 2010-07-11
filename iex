@@ -178,10 +178,10 @@ build_ex_command() {
         EX="$EX -N"
     fi
     if [ ! -z "$EX_IEXRC" ]; then
-        EX="$EX -u '$EX_IEXRC'"
+        EX="$EX -u $EX_IEXRC"
     fi
     if [ ! -z "$EX_VIMINFO" ]; then
-        EX="$EX -i '$EX_VIMINFO'"
+        EX="$EX -i $EX_VIMINFO"
     fi
     if $EX_NOPLUGIN; then
         EX="$EX --noplugin"
