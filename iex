@@ -213,7 +213,9 @@ main() {
             if $IS_SCRIPT_MODE; then
                 run_file "$script" "$@"
             else
-                run_file "$(get_tempfile $(get_script "$script"))" "$@"
+                local s=`get_tempfile`
+                get_script "$script" >"$s"
+                run_file "$s" "$@"
             fi
             ;;
     esac
