@@ -229,11 +229,17 @@ main() {
 VERBOSE="$false"
 AUTO_WRITE="$true"
 AUTO_QUIT="$true"
+
+if [ -f "$HOME/.iexrc" ]; then
+    EX_IEXRC="$HOME/.iexrc"
+else
+    EX_IEXRC="NONE"
+fi
 EX_COMPATIBLE="$true"
 EX_NOPLUGIN="$true"
-EX_IEXRC="$HOME/.iexrc"
 EX_VIMINFO=NONE
 EX_QUIET="$false"
+
 EVAL_SOURCES=()
 IS_SCRIPT_MODE="$false"
 
