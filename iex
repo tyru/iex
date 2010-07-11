@@ -148,7 +148,7 @@ call_ex() {
         } | $EX
         cat "$result_file"
     else
-        decho "ex arguments: [$@]"
+        decho "ex arguments: [$@] [$#]"
         cat "$script" | $EX "$@"
         cat "$@"
     fi
