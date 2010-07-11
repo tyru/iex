@@ -210,9 +210,7 @@ main() {
             build_ex_command
             exec $EX
             ;;
-        1)
-            get_script "$1" | $EX
-            ;;
+        1) usage ;;
         *)
             local script="$1"
             shift
