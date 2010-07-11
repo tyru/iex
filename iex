@@ -181,10 +181,8 @@ build_ex_command() {
     if $EX_COMPATIBLE; then
         EX="$EX -N"
     fi
-    if [ "$EX_IEXRC" != NORC -a -f "$EX_IEXRC" ]; then
+    if [ ! -z "$EX_IEXRC" ]; then
         EX="$EX -u '$EX_IEXRC'"
-    else
-        EX="$EX -u NORC"
     fi
     if $EX_NOPLUGIN; then
         EX="$EX --noplugin"
