@@ -10,6 +10,7 @@ failure=1
 
 # TODO
 # - Set up arguments
+# - Write help
 
 
 usage() {
