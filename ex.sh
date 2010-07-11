@@ -9,7 +9,7 @@ failure=1
 
 
 usage() {
-    progname=`basename $0`
+    local progname=`basename $0`
 
     cat <<EOM
     Usage
@@ -32,6 +32,7 @@ decho() {
     $verbose && echo "debug:" "$@" >&2
 }
 
+all_tempfiles=()
 add_tempfiles() {
     [ $# = 0 ] && return
     register_remove_all_tempfiles
@@ -49,7 +50,7 @@ register_remove_all_tempfiles() {
 }
 
 remove_all_tempfiles() {
-    x=$?
+    local x=$?
     $is_registered_remove_all_tempfiles && {
         for t in "$all_tempfiles"; do
             decho "cleaning up $f..."
@@ -60,7 +61,7 @@ remove_all_tempfiles() {
 }
 
 get_clone_tempfile() {
-    tempfile=`tempfile`
+    local tempfile=`tempfile`
     add_tempfiles "$tempfile"
 
     if [ $# = 0 ]; then
@@ -72,7 +73,7 @@ get_clone_tempfile() {
 }
 
 get_tempfile() {
-    tempfile=`tempfile`
+    local tempfile=`tempfile`
     add_tempfiles "$tempfile"
 
     echo "$tempfile"
@@ -87,12 +88,13 @@ get_script() {
 run_file() {
     [ $# -ge 2 ] || die "invalid args"
 
-    script="$1"
+    local script="$1"
     shift
     decho "script: [$script]"
 
+    local f
     for f in "$@"; do
-        t=`get_clone_tempfile "$f"`
+        local t=`get_clone_tempfile "$f"`
         decho "tempfile: [$t]"
         echo "$script" | $EX "$t"
         cat "$t"
@@ -101,6 +103,7 @@ run_file() {
 
 eval_code() {
     local files=()
+    local f
     for f in "$@"; do
         files=($files "$f")
     done
@@ -109,7 +112,7 @@ eval_code() {
         cat >"$t"
         files=($t)
     }
-    script=$(
+    local script=$(
         for e in $eval_sources; do
             echo "$e"
         done
@@ -141,7 +144,7 @@ main() {
     case $# in
         0) quiet="$false"; build_ex_command; exec $EX ;;
         1) get_script "$1" | $EX ;;
-        *) out=`get_script "$1"`; shift; run_file "$out" "$@" ;;
+        *) local out=`get_script "$1"`; shift; run_file "$out" "$@" ;;
     esac
 }
 
