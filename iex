@@ -9,7 +9,6 @@ failure=1
 
 
 # TODO
-# - Reading ~/.iexrc
 # - Set up arguments
 
 
@@ -142,13 +141,16 @@ eval_code() {
 
 build_ex_command() {
     EX="ex"
-    if $COMPATIBLE; then
+    if $EX_COMPATIBLE; then
         EX="$EX -N"
     fi
-    if ! $LOAD_CONF; then
-        EX="$EX -u NORC --noplugin"
+    if [ "$EX_IEXRC" != NONE -o "$EX_IEXRC" != NORC ]; then
+        EX="$EX -u '$EX_IEXRC'"
     fi
-    if $QUIET; then
+    if $EX_NOPLUGIN; then
+        EX="$EX --noplugin"
+    fi
+    if $EX_QUIET; then
         EX="$EX -"
     fi
     decho 'build_ex_command:' "$EX"
@@ -163,7 +165,7 @@ main() {
     fi
     case $# in
         0)
-            QUIET="$false"
+            EX_QUIET="$false"
             build_ex_command
             exec $EX
             ;;
@@ -181,20 +183,22 @@ main() {
 VERBOSE="$false"
 AUTO_WRITE="$true"
 AUTO_QUIT="$true"
-COMPATIBLE="$true"
-LOAD_CONF="$false"
-QUIET="$false"
+EX_COMPATIBLE="$true"
+EX_NOPLUGIN="$true"
+EX_IEXRC="$HOME/.iexrc"
+EX_QUIET="$false"
 EVAL_SOURCES=()
 
 
-while getopts hvWQclqe: opt; do
+while getopts hvWQCpc:qe: opt; do
     case $opt in
         v) VERBOSE="$true" ;;
         W) AUTO_WRITE="$false" ;;
         Q) AUTO_QUIT="$false" ;;
-        C) COMPATIBLE="$false" ;;
-        l) LOAD_CONF="$true" ;;
-        q) QUIET="$true" ;;
+        C) EX_COMPATIBLE="$false" ;;
+        p) EX_NOPLUGIN="$false" ;;
+        c) EX_IEXRC="$OPTARG" ;;
+        q) EX_QUIET="$true" ;;
         e) EVAL_SOURCES=($EVAL_SOURCES "$OPTARG") ;;
         h) usage ;;
         ?) usage ;;
