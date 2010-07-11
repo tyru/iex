@@ -158,7 +158,7 @@ eval_code() {
     for f in "$@"; do
         files=($files "$f")
     done
-    ! $IS_SCRIPT_MODE && [ ${#files[*]} = 0 ] && {
+    ! $IS_SCRIPT_MODE && [ ${#files[@]} = 0 ] && {
         files=($(get_tempfile $(cat)))
     }
     local script=`get_tempfile`
@@ -195,7 +195,7 @@ build_ex_command() {
 main() {
     $IS_SCRIPT_MODE && decho "-s supplied: enabled script mode"
     build_ex_command
-    if [ ${#EVAL_SOURCES[*]} != 0 ]; then
+    if [ ${#EVAL_SOURCES[@]} != 0 ]; then
         decho "-e switch supplied:" "${EVAL_SOURCES[@]}"
         eval_code "$@"
         return 0
