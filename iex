@@ -137,9 +137,7 @@ eval_code() {
         files=($(get_tempfile $(cat)))
     }
     local script=$(
-        for e in $EVAL_SOURCES; do
-            echo "$e"
-        done
+        echo "$EVAL_SOURCES"
         $AUTO_WRITE && vim_write
         $AUTO_QUIT && vim_quit
     )
