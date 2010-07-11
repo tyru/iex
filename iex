@@ -56,7 +56,7 @@ register_remove_all_tempfiles() {
 remove_all_tempfiles() {
     local x=$?
     $IS_REGISTERED_REMOVE_ALL_TEMPFILES && {
-        for t in "$ALL_TEMPFILES"; do
+        for t in "${ALL_TEMPFILES[@]}"; do
             decho "cleaning up $f..."
             rm -f "$t"
         done
@@ -121,7 +121,7 @@ run_file() {
         done
     fi
 
-    call_ex "$script" "${call_args[*]}"
+    call_ex "$script" "${call_args[@]}"
 }
 
 call_ex() {
@@ -195,7 +195,7 @@ main() {
     $IS_SCRIPT_MODE && decho "-s supplied: enabled script mode"
     build_ex_command
     if [ ${#EVAL_SOURCES[*]} != 0 ]; then
-        decho "-e switch supplied:" "$EVAL_SOURCES"
+        decho "-e switch supplied:" "${EVAL_SOURCES[@]}"
         eval_code "$@"
         return 0
     fi
@@ -241,7 +241,7 @@ while getopts hvWQCpc:qe:s opt; do
         p) EX_NOPLUGIN="$false" ;;
         c) EX_IEXRC="$OPTARG" ;;
         q) EX_QUIET="$true" ;;
-        e) EVAL_SOURCES=($EVAL_SOURCES "$OPTARG") ;;
+        e) EVAL_SOURCES=("${EVAL_SOURCES[@]}" "$OPTARG") ;;
         s) IS_SCRIPT_MODE="$true" ;;
         h) usage ;;
         ?) usage ;;
