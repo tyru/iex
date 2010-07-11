@@ -140,13 +140,11 @@ call_ex() {
 
         local result_file=`get_tempfile`
         {
-            echo <<EOVS
-let g:ARGS = $args
-so $script
-write! $result_file
-EOVS
-            # $AUTO_QUIT && vim_quit
-        } | $EX "$@"
+            echo "let g:ARGS = $args"
+            echo "so $script"
+            echo "write! $result_file"
+            $AUTO_QUIT && vim_quit
+        } | $EX
         cat "$result_file"
     else
         cat "$script" | $EX "$@"
