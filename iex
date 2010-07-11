@@ -112,12 +112,12 @@ run_file() {
 
     local call_args=()
     if $IS_SCRIPT_MODE; then
-        call_args=($@)
+        call_args=("$@")
     else
         local f
         for f in "$@"; do
             local t=`get_clone_tempfile "$f"`
-            call_args=($call_args "$t")
+            call_args=("${call_args[@]}" "$t")
         done
     fi
 
