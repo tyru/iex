@@ -124,7 +124,7 @@ run_file() {
 call_ex() {
     local script="$1"
     shift
-    cat "$script" | $EX "$@"
+    $EX -c "so $script" "$@"
 }
 
 eval_code() {
