@@ -127,8 +127,7 @@ run_file() {
 call_ex() {
     local script="$1"
     shift
-    decho "ex arguments: [$@]"
-
+    decho "\$script = $script"
     if $IS_SCRIPT_MODE; then
         local a args
         args="['$script',"
@@ -136,9 +135,11 @@ call_ex() {
             args="$args'$a',"
         done
         args="$args]"
-        decho 'g:ARGS = ' "$args"
 
         local result_file=`get_tempfile`
+
+        decho "g:ARGS = $args"
+        decho "\$result_file = $result_file"
         {
             echo "let g:ARGS = $args"
             echo "so $script"
@@ -147,6 +148,7 @@ call_ex() {
         } | $EX
         cat "$result_file"
     else
+        decho "ex arguments: [$@]"
         cat "$script" | $EX "$@"
         cat "$@"
     fi
@@ -164,7 +166,6 @@ eval_code() {
     local script=`get_tempfile`
     {
         for l in "${EVAL_SOURCES[@]}"; do
-            decho $l
             echo "$l"
         done
         ! $IS_SCRIPT_MODE && {
