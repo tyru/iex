@@ -29,7 +29,7 @@ die() {
 }
 
 decho() {
-    $verbose && echo "debug:" "$@" >&2
+    $VERBOSE && echo "debug:" "$@" >&2
 }
 
 all_tempfiles=()
@@ -81,8 +81,8 @@ get_tempfile() {
 
 get_script() {
     cat "$@" || exit $?
-    $auto_write && echo "write"
-    $auto_quit  && echo "quit!"
+    $AUTO_WRITE && echo "write"
+    $AUTO_QUIT  && echo "quit!"
 }
 
 run_file() {
@@ -113,60 +113,60 @@ eval_code() {
         files=($t)
     }
     local script=$(
-        for e in $eval_sources; do
+        for e in $EVAL_SOURCES; do
             echo "$e"
         done
-        $auto_write && echo "write"
-        $auto_quit && echo "quit!"
+        $AUTO_WRITE && echo "write"
+        $AUTO_QUIT && echo "quit!"
     )
     run_file "$script" "$files"
 }
 
 build_ex_command() {
     EX="ex"
-    if $compatible; then
+    if $COMPATIBLE; then
         EX="$EX -N"
     fi
-    if ! $load_conf; then
+    if ! $LOAD_CONF; then
         EX="$EX -u NORC --noplugin"
     fi
-    if $quiet; then
+    if $QUIET; then
         EX="$EX -"
     fi
 }
 
 main() {
     build_ex_command
-    if [ ${#eval_sources[*]} != 0 ]; then
+    if [ ${#EVAL_SOURCES[*]} != 0 ]; then
         eval_code "$@"
         return 0
     fi
     case $# in
-        0) quiet="$false"; build_ex_command; exec $EX ;;
+        0) QUIET="$false"; build_ex_command; exec $EX ;;
         1) get_script "$1" | $EX ;;
         *) local out=`get_script "$1"`; shift; run_file "$out" "$@" ;;
     esac
 }
 
 
-verbose="$false"
-auto_write="$true"
-auto_quit="$true"
-compatible="$true"
-load_conf="$false"
-quiet="$false"
-eval_sources=()
+VERBOSE="$false"
+AUTO_WRITE="$true"
+AUTO_QUIT="$true"
+COMPATIBLE="$true"
+LOAD_CONF="$false"
+QUIET="$false"
+EVAL_SOURCES=()
 
 
 while getopts hvWQclqe: opt; do
     case $opt in
-        v) verbose="$true" ;;
-        W) auto_write="$false" ;;
-        Q) auto_quit="$false" ;;
-        C) compatible="$false" ;;
-        l) load_conf="$true" ;;
-        q) quiet="$true" ;;
-        e) eval_sources=($eval_sources "$OPTARG") ;;
+        v) VERBOSE="$true" ;;
+        W) AUTO_WRITE="$false" ;;
+        Q) AUTO_QUIT="$false" ;;
+        C) COMPATIBLE="$false" ;;
+        l) LOAD_CONF="$true" ;;
+        q) QUIET="$true" ;;
+        e) EVAL_SOURCES=($EVAL_SOURCES "$OPTARG") ;;
         h) usage ;;
         ?) usage ;;
     esac
