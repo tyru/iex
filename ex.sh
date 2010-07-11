@@ -104,7 +104,7 @@ run_file() {
     for f in "$@"; do
         local t=`get_clone_tempfile "$f"`
         decho "tempfile: [$t]"
-        echo "$script" | $EX "$t"
+        echo "$script" | call_ex "$t"
         cat "$t"
     done
 }
@@ -141,6 +141,11 @@ build_ex_command() {
     if $QUIET; then
         EX="$EX -"
     fi
+}
+
+call_ex() {
+    [ $# = 1 ] || die "call_ex: must specify file to open"
+    SCRIPT="$1" $EX "$1"
 }
 
 main() {
