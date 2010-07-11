@@ -163,15 +163,18 @@ eval_code() {
     ! $IS_SCRIPT_MODE && [ ${#files[*]} = 0 ] && {
         files=($(get_tempfile $(cat)))
     }
-    local script=$(
-        echo "${EVAL_SOURCES[*]}"
+    local script=`get_tempfile`
+    {
+        for l in "${EVAL_SOURCES[@]}"; do
+            decho $l
+            echo "$l"
+        done
         ! $IS_SCRIPT_MODE && {
             $AUTO_WRITE && vim_write
             $AUTO_QUIT && vim_quit
         }
-    )
-    script="$(get_tempfile "$script")"
-    run_file "$script" "${files[*]}"
+    } >"$script"
+    run_file "$script" "${files[@]}"
 }
 
 build_ex_command() {
