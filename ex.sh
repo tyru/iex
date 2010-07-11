@@ -79,10 +79,18 @@ get_tempfile() {
     echo "$tempfile"
 }
 
+vim_write() {
+    echo "write"
+}
+
+vim_quit() {
+    echo "qall!"
+}
+
 get_script() {
     cat "$@" || exit $?
-    $AUTO_WRITE && echo "write"
-    $AUTO_QUIT  && echo "quit!"
+    $AUTO_WRITE && vim_write
+    $AUTO_QUIT  && vim_quit
 }
 
 run_file() {
@@ -116,8 +124,8 @@ eval_code() {
         for e in $EVAL_SOURCES; do
             echo "$e"
         done
-        $AUTO_WRITE && echo "write"
-        $AUTO_QUIT && echo "quit!"
+        $AUTO_WRITE && vim_write
+        $AUTO_QUIT && vim_quit
     )
     run_file "$script" "$files"
 }
