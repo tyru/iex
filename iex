@@ -8,6 +8,11 @@ failure=1
 
 
 
+# TODO
+# - Reading ~/.iexrc
+# - Set up arguments
+
+
 usage() {
     local progname=`basename $0`
 
