@@ -9,7 +9,6 @@ failure=1
 
 
 # TODO
-# - Set up arguments
 # - Write help
 
 
@@ -111,20 +110,48 @@ run_file() {
     shift
     decho "script: [$script]"
 
-    local f tempfiles
-    for f in "$@"; do
-        local t=`get_clone_tempfile "$f"`
-        tempfiles=($tempfiles "$t")
-    done
+    local call_args=()
+    if $IS_SCRIPT_MODE; then
+        call_args=($@)
+    else
+        local f
+        for f in "$@"; do
+            local t=`get_clone_tempfile "$f"`
+            call_args=($call_args "$t")
+        done
+    fi
 
-    call_ex "$script" "$tempfiles"
-    cat "$tempfiles"
+    call_ex "$script" "${call_args[*]}"
 }
 
 call_ex() {
     local script="$1"
     shift
-    $EX -c "so $script" "$@"
+    decho "ex arguments: [$@]"
+
+    if $IS_SCRIPT_MODE; then
+        local a args
+        args="['$script',"
+        for a in "$@"; do
+            args="$args'$a',"
+        done
+        args="$args]"
+        decho 'g:ARGS = ' "$args"
+
+        local result_file=`get_tempfile`
+        {
+            echo <<EOVS
+let g:ARGS = $args
+so $script
+write! $result_file
+EOVS
+            # $AUTO_QUIT && vim_quit
+        } | $EX "$@"
+        cat "$result_file"
+    else
+        cat "$script" | $EX "$@"
+        cat "$@"
+    fi
 }
 
 eval_code() {
@@ -133,15 +160,18 @@ eval_code() {
     for f in "$@"; do
         files=($files "$f")
     done
-    [ ${#files[*]} = 0 ] && {
+    ! $IS_SCRIPT_MODE && [ ${#files[*]} = 0 ] && {
         files=($(get_tempfile $(cat)))
     }
     local script=$(
-        echo "$EVAL_SOURCES"
-        $AUTO_WRITE && vim_write
-        $AUTO_QUIT && vim_quit
+        echo "${EVAL_SOURCES[*]}"
+        ! $IS_SCRIPT_MODE && {
+            $AUTO_WRITE && vim_write
+            $AUTO_QUIT && vim_quit
+        }
     )
-    run_file "$(get_tempfile "$script")" "$files"
+    script="$(get_tempfile "$script")"
+    run_file "$script" "${files[*]}"
 }
 
 build_ex_command() {
@@ -162,6 +192,7 @@ build_ex_command() {
 }
 
 main() {
+    $IS_SCRIPT_MODE && decho "-s supplied: enabled script mode"
     build_ex_command
     if [ ${#EVAL_SOURCES[*]} != 0 ]; then
         decho "-e switch supplied:" "$EVAL_SOURCES"
@@ -180,7 +211,12 @@ main() {
         *)
             local script="$1"
             shift
-            run_file "$(get_tempfile $(get_script "$script"))" "$@" ;;
+            if $IS_SCRIPT_MODE; then
+                run_file "$script" "$@"
+            else
+                run_file "$(get_tempfile $(get_script "$script"))" "$@"
+            fi
+            ;;
     esac
 }
 
@@ -193,9 +229,10 @@ EX_NOPLUGIN="$true"
 EX_IEXRC="$HOME/.iexrc"
 EX_QUIET="$false"
 EVAL_SOURCES=()
+IS_SCRIPT_MODE="$false"
 
 
-while getopts hvWQCpc:qe: opt; do
+while getopts hvWQCpc:qe:s opt; do
     case $opt in
         v) VERBOSE="$true" ;;
         W) AUTO_WRITE="$false" ;;
@@ -205,6 +242,7 @@ while getopts hvWQCpc:qe: opt; do
         c) EX_IEXRC="$OPTARG" ;;
         q) EX_QUIET="$true" ;;
         e) EVAL_SOURCES=($EVAL_SOURCES "$OPTARG") ;;
+        s) IS_SCRIPT_MODE="$true" ;;
         h) usage ;;
         ?) usage ;;
     esac
