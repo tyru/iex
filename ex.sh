@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 
 true=":"
@@ -36,7 +36,7 @@ add_tempfiles() {
     [ $# = 0 ] && return
     register_remove_all_tempfiles
     for f in "$@"; do
-        all_tempfiles="$all_tempfiles '$f'"
+        all_tempfiles=($all_tempfiles "$f")
     done
 }
 
