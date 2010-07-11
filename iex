@@ -76,6 +76,10 @@ get_tempfile() {
     local tempfile=`tempfile`
     add_tempfiles "$tempfile"
 
+    if [ $# != 0 ]; then
+        echo "$@" >"$tempfile"
+    fi
+
     echo "$tempfile"
 }
 
