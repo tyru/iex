@@ -151,7 +151,7 @@ build_ex_command() {
     if $EX_COMPATIBLE; then
         EX="$EX -N"
     fi
-    if [ "$EX_IEXRC" != NONE -o "$EX_IEXRC" != NORC ]; then
+    if [ "$EX_IEXRC" != NONE -a "$EX_IEXRC" != NORC -a -f "$EX_IEXRC" ]; then
         EX="$EX -u '$EX_IEXRC'"
     fi
     if $EX_NOPLUGIN; then
