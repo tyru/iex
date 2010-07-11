@@ -32,27 +32,27 @@ decho() {
     $VERBOSE && echo "debug:" "$@" >&2
 }
 
-all_tempfiles=()
+ALL_TEMPFILES=()
 add_tempfiles() {
     [ $# = 0 ] && return
     register_remove_all_tempfiles
     for f in "$@"; do
-        all_tempfiles=($all_tempfiles "$f")
+        ALL_TEMPFILES=($ALL_TEMPFILES "$f")
     done
 }
 
-is_registered_remove_all_tempfiles="$false"
+IS_REGISTERED_REMOVE_ALL_TEMPFILES="$false"
 register_remove_all_tempfiles() {
-    $is_registered_remove_all_tempfiles || {
+    $IS_REGISTERED_REMOVE_ALL_TEMPFILES || {
         trap 'remove_all_tempfiles' HUP INT QUIT TERM
-        is_registered_remove_all_tempfiles="$true"
+        IS_REGISTERED_REMOVE_ALL_TEMPFILES="$true"
     }
 }
 
 remove_all_tempfiles() {
     local x=$?
-    $is_registered_remove_all_tempfiles && {
-        for t in "$all_tempfiles"; do
+    $IS_REGISTERED_REMOVE_ALL_TEMPFILES && {
+        for t in "$ALL_TEMPFILES"; do
             decho "cleaning up $f..."
             rm -f "$t"
         done
