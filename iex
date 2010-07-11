@@ -69,11 +69,7 @@ get_clone_tempfile() {
     decho "tempfile: [$tempfile]"
     add_tempfiles "$tempfile"
 
-    if [ $# = 0 ]; then
-        cat
-    else
-        cat "$@"
-    fi >"$tempfile" || exit $?
+    [ $# != 0 ] && cat "$@" >"$tempfile" || exit $?
     echo "$tempfile"
 }
 
