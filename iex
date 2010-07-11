@@ -104,13 +104,15 @@ run_file() {
     shift
     decho "script: [$script]"
 
-    local f
+    local f tempfiles
     for f in "$@"; do
         local t=`get_clone_tempfile "$f"`
         decho "tempfile: [$t]"
-        echo "$script" | call_ex "$t"
-        cat "$t"
+        tempfiles=($tempfiles "$t")
     done
+
+    cat "$script" | $EX "$tempfiles"
+    cat "$tempfiles"
 }
 
 eval_code() {
@@ -120,9 +122,7 @@ eval_code() {
         files=($files "$f")
     done
     [ ${#files[*]} = 0 ] && {
-        local t=`get_tempfile`
-        cat >"$t"
-        files=($t)
+        files=($(get_tempfile $(cat)))
     }
     local script=$(
         for e in $EVAL_SOURCES; do
@@ -131,7 +131,7 @@ eval_code() {
         $AUTO_WRITE && vim_write
         $AUTO_QUIT && vim_quit
     )
-    run_file "$script" "$files"
+    run_file "$(get_tempfile "$script")" "$files"
 }
 
 build_ex_command() {
@@ -147,11 +147,6 @@ build_ex_command() {
     fi
 }
 
-call_ex() {
-    [ $# = 1 ] || die "call_ex: must specify file to open"
-    SCRIPT="$1" $EX "$1"
-}
-
 main() {
     build_ex_command
     if [ ${#EVAL_SOURCES[*]} != 0 ]; then
@@ -159,9 +154,18 @@ main() {
         return 0
     fi
     case $# in
-        0) QUIET="$false"; build_ex_command; exec $EX ;;
-        1) get_script "$1" | $EX ;;
-        *) local out=`get_script "$1"`; shift; run_file "$out" "$@" ;;
+        0)
+            QUIET="$false"
+            build_ex_command
+            exec $EX
+            ;;
+        1)
+            get_script "$1" | $EX
+            ;;
+        *)
+            local script="$1"
+            shift
+            run_file "$(get_tempfile $(get_script "$script"))" "$@" ;;
     esac
 }
 
