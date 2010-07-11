@@ -117,8 +117,14 @@ run_file() {
         tempfiles=($tempfiles "$t")
     done
 
-    cat "$script" | $EX "$tempfiles"
+    call_ex "$script" "$tempfiles"
     cat "$tempfiles"
+}
+
+call_ex() {
+    local script="$1"
+    shift
+    cat "$script" | $EX "$@"
 }
 
 eval_code() {
