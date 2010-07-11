@@ -43,7 +43,7 @@ add_tempfiles() {
 is_registered_remove_all_tempfiles="$false"
 register_remove_all_tempfiles() {
     $is_registered_remove_all_tempfiles || {
-        trap 'remove_all_tempfiles' 0 HUP INT QUIT TERM
+        trap 'remove_all_tempfiles' HUP INT QUIT TERM
         is_registered_remove_all_tempfiles="$true"
     }
 }
@@ -71,6 +71,13 @@ get_clone_tempfile() {
     echo "$tempfile"
 }
 
+get_tempfile() {
+    tempfile=`tempfile`
+    add_tempfiles "$tempfile"
+
+    echo "$tempfile"
+}
+
 get_script() {
     cat "$@" || exit $?
     $auto_write && echo "write"
@@ -86,9 +93,30 @@ run_file() {
 
     for f in "$@"; do
         t=`get_clone_tempfile "$f"`
+        decho "tempfile: [$t]"
         echo "$script" | $EX "$t"
         cat "$t"
     done
+}
+
+eval_code() {
+    local files=()
+    for f in "$@"; do
+        files=($files "$f")
+    done
+    [ ${#files[*]} = 0 ] && {
+        local t=`get_tempfile`
+        cat >"$t"
+        files=($t)
+    }
+    script=$(
+        for e in $eval_sources; do
+            echo "$e"
+        done
+        $auto_write && echo "write"
+        $auto_quit && echo "quit!"
+    )
+    run_file "$script" "$files"
 }
 
 build_ex_command() {
@@ -106,6 +134,10 @@ build_ex_command() {
 
 main() {
     build_ex_command
+    if [ ${#eval_sources[*]} != 0 ]; then
+        eval_code "$@"
+        return 0
+    fi
     case $# in
         0) quiet="$false"; build_ex_command; exec $EX ;;
         1) get_script "$1" | $EX ;;
@@ -120,9 +152,10 @@ auto_quit="$true"
 compatible="$true"
 load_conf="$false"
 quiet="$false"
+eval_sources=()
 
 
-while getopts hvWQclq opt; do
+while getopts hvWQclqe: opt; do
     case $opt in
         v) verbose="$true" ;;
         W) auto_write="$false" ;;
@@ -130,6 +163,7 @@ while getopts hvWQclq opt; do
         C) compatible="$false" ;;
         l) load_conf="$true" ;;
         q) quiet="$true" ;;
+        e) eval_sources=($eval_sources "$OPTARG") ;;
         h) usage ;;
         ?) usage ;;
     esac
