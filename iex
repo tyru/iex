@@ -67,6 +67,7 @@ remove_all_tempfiles() {
 
 get_clone_tempfile() {
     local tempfile=`tempfile`
+    decho "tempfile: [$tempfile]"
     add_tempfiles "$tempfile"
 
     if [ $# = 0 ]; then
@@ -79,6 +80,7 @@ get_clone_tempfile() {
 
 get_tempfile() {
     local tempfile=`tempfile`
+    decho "tempfile: [$tempfile]"
     add_tempfiles "$tempfile"
 
     if [ $# != 0 ]; then
@@ -112,7 +114,6 @@ run_file() {
     local f tempfiles
     for f in "$@"; do
         local t=`get_clone_tempfile "$f"`
-        decho "tempfile: [$t]"
         tempfiles=($tempfiles "$t")
     done
 
@@ -150,11 +151,13 @@ build_ex_command() {
     if $QUIET; then
         EX="$EX -"
     fi
+    decho 'build_ex_command:' "$EX"
 }
 
 main() {
     build_ex_command
     if [ ${#EVAL_SOURCES[*]} != 0 ]; then
+        decho "-e switch supplied:" "$EVAL_SOURCES"
         eval_code "$@"
         return 0
     fi
