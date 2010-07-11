@@ -184,6 +184,9 @@ build_ex_command() {
     if [ ! -z "$EX_IEXRC" ]; then
         EX="$EX -u '$EX_IEXRC'"
     fi
+    if [ ! -z "$EX_VIMINFO" ]; then
+        EX="$EX -i '$EX_VIMINFO'"
+    fi
     if $EX_NOPLUGIN; then
         EX="$EX --noplugin"
     fi
@@ -229,12 +232,13 @@ AUTO_QUIT="$true"
 EX_COMPATIBLE="$true"
 EX_NOPLUGIN="$true"
 EX_IEXRC="$HOME/.iexrc"
+EX_VIMINFO=NONE
 EX_QUIET="$false"
 EVAL_SOURCES=()
 IS_SCRIPT_MODE="$false"
 
 
-while getopts hvWQCpc:qe:s opt; do
+while getopts hvWQCpc:i:qe:s opt; do
     case $opt in
         v) VERBOSE="$true" ;;
         W) AUTO_WRITE="$false" ;;
@@ -242,6 +246,7 @@ while getopts hvWQCpc:qe:s opt; do
         C) EX_COMPATIBLE="$false" ;;
         p) EX_NOPLUGIN="$false" ;;
         c) EX_IEXRC="$OPTARG" ;;
+        i) EX_VIMINFO="$OPTARG" ;;
         q) EX_QUIET="$true" ;;
         e) EVAL_SOURCES=("${EVAL_SOURCES[@]}" "$OPTARG") ;;
         s) IS_SCRIPT_MODE="$true" ;;
