@@ -57,7 +57,7 @@ remove_all_tempfiles() {
     local x=$?
     $IS_REGISTERED_REMOVE_ALL_TEMPFILES && {
         for t in "${ALL_TEMPFILES[@]}"; do
-            decho "cleaning up $f..."
+            decho "cleaning up $t..."
             rm -f "$t"
         done
     }
