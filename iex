@@ -112,7 +112,7 @@ main() {
     # Build script files from -e arguments
     # and add it to $scripts.
     local code s
-    for code in "${EVAL_CODES[@]}"; do
+    for code in "${EXECUTE_CODES[@]}"; do
         s=`get_tempfile`
         {
             echo "$code"
@@ -154,7 +154,7 @@ EX_NOPLUGIN="$true"
 EX_VIMINFO=NONE
 EX_QUIET="$false"
 
-EVAL_CODES=()
+EXECUTE_CODES=()
 
 
 while getopts hvWQCpu:i:qe:s opt; do
@@ -165,7 +165,7 @@ while getopts hvWQCpu:i:qe:s opt; do
         u) EX_IEXRC="$OPTARG" ;;
         i) EX_VIMINFO="$OPTARG" ;;
         q) EX_QUIET="$true" ;;
-        e) EVAL_CODES=("${EVAL_CODES[@]}" "$OPTARG") ;;
+        e) EXECUTE_CODES=("${EXECUTE_CODES[@]}" "$OPTARG") ;;
         h) usage ;;
         ?) usage ;;
     esac
