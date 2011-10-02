@@ -8,10 +8,6 @@ failure=1
 
 
 
-# TODO
-# - Write help
-
-
 version_exit() {
     local progname=`basename $0`
     die "$progname v0.1"
@@ -21,12 +17,34 @@ usage_exit() {
     local progname=`basename $0`
 
     cat <<EOM
+
     Usage
-        $progname [{options}] [--] [{script} [{file}]]
+        $ $progname
+            Run interactive ex (like Python)
+
+        $ $progname [-e {code} {code2} ...}] [--] {script} [{script2} ...]
+            Run scripts. if -e was given, run the code before {script}.
 
     Options
         -h
             Show help.
+        -v
+            Show version.
+        -d
+            Run with debug output.
+        -C
+            Run with compatible mode.
+        -p
+            Run with --noplugin.
+        -u {iexrc}
+            Load .iexrc config. default is "~/.iexrc".
+            This is vimscript config
+            so you can pass your "~/.vimrc".
+        -i {viminfo}
+            Specify viminfo file.
+        -e {code}
+            Execute code.
+            Given code is executed before {script}.
 EOM
 
     exit 1
