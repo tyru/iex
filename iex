@@ -185,13 +185,16 @@ build_ex_command() {
 
 main() {
     trap 'remove_all_tempfiles' HUP INT QUIT TERM EXIT
+
     $IS_SCRIPT_MODE && decho "-s supplied: enabled script mode"
     build_ex_command
+
     if [ ${#EVAL_SOURCES[@]} != 0 ]; then
         decho "-e switch supplied:" "${EVAL_SOURCES[@]}"
         eval_code "$@"
         return 0
     fi
+
     case $# in
         0)
             EX_QUIET="$false"
