@@ -71,6 +71,8 @@ run_script() {
     decho "Vim result output = $result_file"
 
     # Let Vim run $script!
+    # (`>/dev/null 2>&1` for truncating blank lines
+    # which Vim outputs at startup...)
     $EX -c "so $script" \
         -c "write! $result_file" \
         -c 'qa!' \
