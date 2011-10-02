@@ -127,29 +127,6 @@ run_file() {
     fi
 }
 
-eval_code() {
-    local files=()
-    local f
-    for f in "$@"; do
-        files=($files "$f")
-    done
-    ! $IS_SCRIPT_MODE && [ ${#files[@]} = 0 ] && {
-        files=($(get_tempfile $(cat)))
-    }
-    local script=`get_tempfile`
-    decho "eval_code:"${ALL_TEMPFILES[@]}
-    {
-        for l in "${EVAL_SOURCES[@]}"; do
-            echo "$l"
-        done
-        ! $IS_SCRIPT_MODE && {
-            $AUTO_WRITE && vim_write
-            $AUTO_QUIT && vim_quit
-        }
-    } >"$script"
-    run_file "$script" "${files[@]}"
-}
-
 build_ex_command() {
     EX="ex"
     if $EX_COMPATIBLE; then
@@ -171,36 +148,40 @@ build_ex_command() {
 }
 
 main() {
+    # Remove all messed up tempfiles at exit...
     trap 'remove_all_tempfiles' EXIT
 
     $IS_SCRIPT_MODE && decho "-s supplied: enabled script mode"
     build_ex_command
 
-    if [ ${#EVAL_SOURCES[@]} != 0 ]; then
-        decho "-e switch supplied:" "${EVAL_SOURCES[@]}"
-        eval_code "$@"
-        return 0
+    local scripts
+    scripts=()
+
+    # Build script files from -e arguments
+    # and add it to $scripts.
+    local code t
+    for code in "${EVAL_CODES[@]}"; do
+        t=`get_tempfile`
+        {
+            echo "$code"
+            $AUTO_WRITE && vim_write
+            $AUTO_QUIT  && vim_quit
+        } >"$t"
+        scripts=($scripts "$t")
+    done
+
+    # Get script files.
+    scripts=($scripts "$@")
+
+    # If no scripts run, run interactive ex (like Python).
+    if [ "${#scripts[@]}" -eq 0 ]; then
+        EX_QUIET="$false"
+        build_ex_command
+        exec $EX
     fi
 
-    case $# in
-        0)
-            EX_QUIET="$false"
-            build_ex_command
-            exec $EX
-            ;;
-        1) usage ;;
-        *)
-            local script="$1"
-            shift
-            if $IS_SCRIPT_MODE; then
-                run_file "$script" "$@"
-            else
-                local s=`get_tempfile`
-                get_script "$script" >"$s"
-                run_file "$s" "$@"
-            fi
-            ;;
-    esac
+    # Run scripts.
+    run_file "${scripts[@]}"
 }
 
 
@@ -218,7 +199,7 @@ EX_NOPLUGIN="$true"
 EX_VIMINFO=NONE
 EX_QUIET="$false"
 
-EVAL_SOURCES=()
+EVAL_CODES=()
 IS_SCRIPT_MODE="$false"
 
 
@@ -232,7 +213,7 @@ while getopts hvWQCpu:i:qe:s opt; do
         u) EX_IEXRC="$OPTARG" ;;
         i) EX_VIMINFO="$OPTARG" ;;
         q) EX_QUIET="$true" ;;
-        e) EVAL_SOURCES=("${EVAL_SOURCES[@]}" "$OPTARG") ;;
+        e) EVAL_CODES=("${EVAL_CODES[@]}" "$OPTARG") ;;
         s) IS_SCRIPT_MODE="$true" ;;
         h) usage ;;
         ?) usage ;;
