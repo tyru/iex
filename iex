@@ -75,7 +75,7 @@ get_script() {
     $AUTO_QUIT  && vim_quit
 }
 
-run_file() {
+run_script() {
     [ $# -ge 2 ] || die "invalid args"
 
     local script="$1"
@@ -151,7 +151,7 @@ main() {
 
     # Run scripts.
     for s in "${scripts[@]}"; do
-        run_file "$s" "$@"
+        run_script "$s" "$@"
     done
 }
 
