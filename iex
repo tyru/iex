@@ -10,8 +10,6 @@ failure=1
 
 # TODO
 # - Write help
-# - Capture output of :echo, :echomsg, :echoerr
-# and output to stdout, stderr.
 
 
 usage() {
