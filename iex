@@ -47,7 +47,7 @@ add_tempfiles() {
 remove_all_tempfiles() {
     local x=$?
     for t in "${ALL_TEMPFILES[@]}"; do
-        decho "cleaning up $t..."
+        decho "removing tempfile $t..."
         rm -f "$t"
     done
     exit $x
@@ -55,7 +55,6 @@ remove_all_tempfiles() {
 
 get_clone_tempfile() {
     local tempfile=`mktemp`
-    decho "tempfile: [$tempfile]"
     add_tempfiles "$tempfile"
 
     [ $# != 0 ] && cat "$@" >"$tempfile" || exit $?
@@ -64,7 +63,6 @@ get_clone_tempfile() {
 
 get_tempfile() {
     local tempfile=`mktemp`
-    decho "tempfile: [$tempfile]"
     add_tempfiles "$tempfile"
 
     if [ $# != 0 ]; then
@@ -95,7 +93,7 @@ run_file() {
 
     local script="$1"
     shift
-    decho "script: [$script]"
+    decho "script to run: [$script]"
 
     if $IS_SCRIPT_MODE; then
         # TODO: Assign $script to another variable...
@@ -105,10 +103,10 @@ run_file() {
             args="$args'$a',"
         done
         args="$args]"
+        decho "g:ARGS = $args"
 
         local result_file=`get_tempfile`
-        decho "g:ARGS = $args"
-        decho "\$result_file = $result_file"
+        decho "Vim result output = $result_file"
         {
             echo "let g:ARGS = $args"
             echo "so $script"
@@ -121,10 +119,9 @@ run_file() {
         args=()
         for f in "$@"; do
             local t=`get_clone_tempfile "$f"`
-            decho "run_file:"${ALL_TEMPFILES[@]}
             args=("${args[@]}" "$t")
         done
-        decho "ex arguments: [${args[@]}] [${#args[@]}]"
+        decho "ex arguments: [${args[@]}]"
         cat "$script" | $EX "${args[@]}"
         cat "${args[@]}"
     fi
@@ -170,7 +167,7 @@ build_ex_command() {
     if $EX_QUIET; then
         EX="$EX -"
     fi
-    decho 'build_ex_command:' "$EX"
+    decho 'Build arguments with ex.' "$EX"
 }
 
 main() {
