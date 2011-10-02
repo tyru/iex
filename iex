@@ -98,6 +98,7 @@ run_file() {
     decho "script: [$script]"
 
     if $IS_SCRIPT_MODE; then
+        # TODO: Assign $script to another variable...
         local a args
         args="['$script',"
         for a in "$@"; do
