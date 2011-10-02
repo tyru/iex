@@ -94,9 +94,6 @@ build_ex_command() {
     if $EX_NOPLUGIN; then
         EX="$EX --noplugin"
     fi
-    if $EX_QUIET; then
-        EX="$EX -"
-    fi
     decho 'Build arguments with ex.' "$EX"
 }
 
@@ -130,8 +127,6 @@ main() {
 
     # If no scripts run, run interactive ex (like Python).
     if [ "${#scripts[@]}" -eq 0 ]; then
-        EX_QUIET="$false"
-        build_ex_command
         exec $EX
     fi
 
@@ -152,7 +147,6 @@ fi
 EX_COMPATIBLE="$true"
 EX_NOPLUGIN="$true"
 EX_VIMINFO=NONE
-EX_QUIET="$false"
 
 EXECUTE_CODES=()
 
@@ -164,7 +158,6 @@ while getopts hvWQCpu:i:qe:s opt; do
         p) EX_NOPLUGIN="$false" ;;
         u) EX_IEXRC="$OPTARG" ;;
         i) EX_VIMINFO="$OPTARG" ;;
-        q) EX_QUIET="$true" ;;
         e) EXECUTE_CODES=("${EXECUTE_CODES[@]}" "$OPTARG") ;;
         h) usage ;;
         ?) usage ;;
