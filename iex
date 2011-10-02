@@ -12,6 +12,11 @@ failure=1
 # - Write help
 
 
+version_exit() {
+    local progname=`basename $0`
+    die "$progname v0.1"
+}
+
 usage() {
     local progname=`basename $0`
 
@@ -150,8 +155,9 @@ EXECUTE_CODES=()
 DEBUG="$false"
 
 
-while getopts Chdpu:i:e: opt; do
+while getopts vChdpu:i:e: opt; do
     case $opt in
+        v) version_exit ;;
         d) DEBUG="$true" ;;
         C) EX_COMPATIBLE="$true" ;;
         p) EX_NOPLUGIN="$false" ;;
