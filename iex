@@ -82,7 +82,7 @@ run_script() {
 
 build_ex_command() {
     EX="ex"
-    if $EX_NOCOMPATIBLE; then
+    if ! $EX_COMPATIBLE; then
         EX="$EX -N"
     fi
     if [ ! -z "$EX_IEXRC" ]; then
@@ -143,17 +143,17 @@ if [ -f "$HOME/.iexrc" ]; then
 else
     EX_IEXRC="NONE"
 fi
-EX_NOCOMPATIBLE="$true"
+EX_COMPATIBLE="$false"
 EX_NOPLUGIN="$true"
 EX_VIMINFO=NONE
 EXECUTE_CODES=()
 DEBUG="$false"
 
 
-while getopts hdpu:i:e: opt; do
+while getopts Chdpu:i:e: opt; do
     case $opt in
         d) DEBUG="$true" ;;
-        N) EX_NOCOMPATIBLE="$false" ;;
+        C) EX_COMPATIBLE="$true" ;;
         p) EX_NOPLUGIN="$false" ;;
         u) EX_IEXRC="$OPTARG" ;;
         i) EX_VIMINFO="$OPTARG" ;;
