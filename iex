@@ -33,7 +33,7 @@ die() {
 }
 
 decho() {
-    $VERBOSE && echo "debug:" "$@" >&2
+    $DEBUG && echo "debug:" "$@" >&2
 }
 
 ALL_TEMPFILES=()
@@ -147,12 +147,12 @@ EX_NOCOMPATIBLE="$true"
 EX_NOPLUGIN="$true"
 EX_VIMINFO=NONE
 EXECUTE_CODES=()
-VERBOSE="$false"
+DEBUG="$false"
 
 
-while getopts hvpu:i:e: opt; do
+while getopts hdpu:i:e: opt; do
     case $opt in
-        v) VERBOSE="$true" ;;
+        d) DEBUG="$true" ;;
         N) EX_NOCOMPATIBLE="$false" ;;
         p) EX_NOPLUGIN="$false" ;;
         u) EX_IEXRC="$OPTARG" ;;
