@@ -113,7 +113,6 @@ run_file() {
         local f
         for f in "$@"; do
             local t=`get_clone_tempfile "$f"`
-            add_tempfiles "$t"
             decho "run_file:"${ALL_TEMPFILES[@]}
             call_args=("${call_args[@]}" "$t")
         done
@@ -162,7 +161,6 @@ eval_code() {
         files=($(get_tempfile $(cat)))
     }
     local script=`get_tempfile`
-    add_tempfiles "$script"
     decho "eval_code:"${ALL_TEMPFILES[@]}
     {
         for l in "${EVAL_SOURCES[@]}"; do
