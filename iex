@@ -151,7 +151,7 @@ EX_VIMINFO=NONE
 EXECUTE_CODES=()
 
 
-while getopts hvWQCpu:i:qe:s opt; do
+while getopts hvpu:i:e: opt; do
     case $opt in
         v) VERBOSE="$true" ;;
         N) EX_NOCOMPATIBLE="$false" ;;
