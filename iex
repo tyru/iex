@@ -39,28 +39,17 @@ decho() {
 ALL_TEMPFILES=()
 add_tempfiles() {
     [ $# = 0 ] && return
-    register_remove_all_tempfiles
     for f in "$@"; do
         ALL_TEMPFILES=($ALL_TEMPFILES "$f")
     done
 }
 
-IS_REGISTERED_REMOVE_ALL_TEMPFILES="$false"
-register_remove_all_tempfiles() {
-    $IS_REGISTERED_REMOVE_ALL_TEMPFILES || {
-        trap 'remove_all_tempfiles' HUP INT QUIT TERM EXIT
-        IS_REGISTERED_REMOVE_ALL_TEMPFILES="$true"
-    }
-}
-
 remove_all_tempfiles() {
     local x=$?
-    $IS_REGISTERED_REMOVE_ALL_TEMPFILES && {
-        for t in "${ALL_TEMPFILES[@]}"; do
-            decho "cleaning up $t..."
-            rm -f "$t"
-        done
-    }
+    for t in "${ALL_TEMPFILES[@]}"; do
+        decho "cleaning up $t..."
+        rm -f "$t"
+    done
     exit $x
 }
 
@@ -195,6 +184,7 @@ build_ex_command() {
 }
 
 main() {
+    trap 'remove_all_tempfiles' HUP INT QUIT TERM EXIT
     $IS_SCRIPT_MODE && decho "-s supplied: enabled script mode"
     build_ex_command
     if [ ${#EVAL_SOURCES[@]} != 0 ]; then
