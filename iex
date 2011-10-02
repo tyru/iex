@@ -137,8 +137,7 @@ main() {
 }
 
 
-VERBOSE="$false"
-
+# Argument options
 if [ -f "$HOME/.iexrc" ]; then
     EX_IEXRC="$HOME/.iexrc"
 else
@@ -147,8 +146,8 @@ fi
 EX_NOCOMPATIBLE="$true"
 EX_NOPLUGIN="$true"
 EX_VIMINFO=NONE
-
 EXECUTE_CODES=()
+VERBOSE="$false"
 
 
 while getopts hvpu:i:e: opt; do
