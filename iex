@@ -10,7 +10,7 @@ failure=1
 
 version_exit() {
     local progname=`basename $0`
-    die "$progname v0.1"
+    die "$progname v1.0"
 }
 
 usage_exit() {
