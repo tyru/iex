@@ -82,7 +82,7 @@ run_script() {
 
 build_ex_command() {
     EX="ex"
-    if $EX_COMPATIBLE; then
+    if $EX_NOCOMPATIBLE; then
         EX="$EX -N"
     fi
     if [ ! -z "$EX_IEXRC" ]; then
@@ -144,7 +144,7 @@ if [ -f "$HOME/.iexrc" ]; then
 else
     EX_IEXRC="NONE"
 fi
-EX_COMPATIBLE="$true"
+EX_NOCOMPATIBLE="$true"
 EX_NOPLUGIN="$true"
 EX_VIMINFO=NONE
 
@@ -154,7 +154,7 @@ EXECUTE_CODES=()
 while getopts hvWQCpu:i:qe:s opt; do
     case $opt in
         v) VERBOSE="$true" ;;
-        C) EX_COMPATIBLE="$false" ;;
+        N) EX_NOCOMPATIBLE="$false" ;;
         p) EX_NOPLUGIN="$false" ;;
         u) EX_IEXRC="$OPTARG" ;;
         i) EX_VIMINFO="$OPTARG" ;;
