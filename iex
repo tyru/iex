@@ -53,22 +53,9 @@ remove_all_tempfiles() {
     exit $x
 }
 
-get_clone_tempfile() {
-    local tempfile=`mktemp`
-    add_tempfiles "$tempfile"
-
-    [ $# != 0 ] && cat "$@" >"$tempfile" || exit $?
-    echo "$tempfile"
-}
-
 get_tempfile() {
     local tempfile=`mktemp`
     add_tempfiles "$tempfile"
-
-    if [ $# != 0 ]; then
-        echo "$@" >"$tempfile"
-    fi
-
     echo "$tempfile"
 }
 
@@ -118,8 +105,9 @@ run_file() {
         local f args
         args=()
         for f in "$@"; do
-            local t=`get_clone_tempfile "$f"`
-            args=("${args[@]}" "$t")
+            local arg=`get_tempfile`
+            cat "$f" >"$arg"
+            args=("${args[@]}" "$arg")
         done
         decho "ex arguments: [${args[@]}]"
         cat "$script" | $EX "${args[@]}"
@@ -159,15 +147,15 @@ main() {
 
     # Build script files from -e arguments
     # and add it to $scripts.
-    local code t
+    local code s
     for code in "${EVAL_CODES[@]}"; do
-        t=`get_tempfile`
+        s=`get_tempfile`
         {
             echo "$code"
             $AUTO_WRITE && vim_write
             $AUTO_QUIT  && vim_quit
-        } >"$t"
-        scripts=($scripts "$t")
+        } >"$s"
+        scripts=($scripts "$s")
     done
 
     # Get script files.
