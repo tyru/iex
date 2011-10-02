@@ -83,6 +83,8 @@ vim_quit() {
 }
 
 get_script() {
+    # TODO: Capture output of :echo, :echomsg, :echoerr
+    # and output to stdout, stderr.
     cat "$@" || exit $?
     $AUTO_WRITE && vim_write
     $AUTO_QUIT  && vim_quit
