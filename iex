@@ -10,6 +10,8 @@ failure=1
 
 # TODO
 # - Write help
+# - Capture output of :echo, :echomsg, :echoerr
+# and output to stdout, stderr.
 
 
 usage() {
@@ -57,22 +59,6 @@ get_tempfile() {
     local tempfile=`mktemp`
     add_tempfiles "$tempfile"
     echo "$tempfile"
-}
-
-vim_write() {
-    echo "write"
-}
-
-vim_quit() {
-    echo "qall!"
-}
-
-get_script() {
-    # TODO: Capture output of :echo, :echomsg, :echoerr
-    # and output to stdout, stderr.
-    cat "$@" || exit $?
-    $AUTO_WRITE && vim_write
-    $AUTO_QUIT  && vim_quit
 }
 
 run_script() {
@@ -130,8 +116,8 @@ main() {
         s=`get_tempfile`
         {
             echo "$code"
-            $AUTO_WRITE && vim_write
-            $AUTO_QUIT  && vim_quit
+            echo 'write!'
+            echo 'qall!'
         } >"$s"
         scripts=($scripts "$s")
     done
@@ -157,8 +143,6 @@ main() {
 
 
 VERBOSE="$false"
-AUTO_WRITE="$true"
-AUTO_QUIT="$true"
 
 if [ -f "$HOME/.iexrc" ]; then
     EX_IEXRC="$HOME/.iexrc"
@@ -176,8 +160,6 @@ EVAL_CODES=()
 while getopts hvWQCpu:i:qe:s opt; do
     case $opt in
         v) VERBOSE="$true" ;;
-        W) AUTO_WRITE="$false" ;;
-        Q) AUTO_QUIT="$false" ;;
         C) EX_COMPATIBLE="$false" ;;
         p) EX_NOPLUGIN="$false" ;;
         u) EX_IEXRC="$OPTARG" ;;
