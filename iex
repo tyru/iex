@@ -97,25 +97,6 @@ run_file() {
     shift
     decho "script: [$script]"
 
-    local call_args=()
-    if $IS_SCRIPT_MODE; then
-        call_args=("$@")
-    else
-        local f
-        for f in "$@"; do
-            local t=`get_clone_tempfile "$f"`
-            decho "run_file:"${ALL_TEMPFILES[@]}
-            call_args=("${call_args[@]}" "$t")
-        done
-    fi
-
-    call_ex "$script" "${call_args[@]}"
-}
-
-call_ex() {
-    local script="$1"
-    shift
-    decho "\$script = $script"
     if $IS_SCRIPT_MODE; then
         local a args
         args="['$script',"
@@ -125,7 +106,6 @@ call_ex() {
         args="$args]"
 
         local result_file=`get_tempfile`
-
         decho "g:ARGS = $args"
         decho "\$result_file = $result_file"
         {
@@ -136,9 +116,16 @@ call_ex() {
         } | $EX
         cat "$result_file"
     else
-        decho "ex arguments: [$@] [$#]"
-        cat "$script" | $EX "$@"
-        cat "$@"
+        local f args
+        args=()
+        for f in "$@"; do
+            local t=`get_clone_tempfile "$f"`
+            decho "run_file:"${ALL_TEMPFILES[@]}
+            args=("${args[@]}" "$t")
+        done
+        decho "ex arguments: [${args[@]}] [${#args[@]}]"
+        cat "$script" | $EX "${args[@]}"
+        cat "${args[@]}"
     fi
 }
 
