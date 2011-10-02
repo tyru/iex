@@ -184,7 +184,7 @@ build_ex_command() {
 }
 
 main() {
-    trap 'remove_all_tempfiles' HUP INT QUIT TERM EXIT
+    trap 'remove_all_tempfiles' EXIT
 
     $IS_SCRIPT_MODE && decho "-s supplied: enabled script mode"
     build_ex_command
