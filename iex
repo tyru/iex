@@ -17,7 +17,7 @@ version_exit() {
     die "$progname v0.1"
 }
 
-usage() {
+usage_exit() {
     local progname=`basename $0`
 
     cat <<EOM
@@ -164,8 +164,8 @@ while getopts vChdpu:i:e: opt; do
         u) EX_IEXRC="$OPTARG" ;;
         i) EX_VIMINFO="$OPTARG" ;;
         e) EXECUTE_CODES=("${EXECUTE_CODES[@]}" "$OPTARG") ;;
-        h) usage ;;
-        ?) usage ;;
+        h) usage_exit ;;
+        ?) usage_exit ;;
     esac
 done
 shift `expr $OPTIND - 1`
