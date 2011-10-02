@@ -81,38 +81,17 @@ run_file() {
     local script="$1"
     shift
     decho "script to run: [$script]"
+    local result_file=`get_tempfile`
+    decho "Vim result output = $result_file"
 
-    if $IS_SCRIPT_MODE; then
-        # TODO: Assign $script to another variable...
-        local a args
-        args="['$script',"
-        for a in "$@"; do
-            args="$args'$a',"
-        done
-        args="$args]"
-        decho "g:ARGS = $args"
+    # Let Vim run $script!
+    $EX -c "so $script" \
+        -c "write! $result_file" \
+        -c 'qa!' \
+        "$@" >/dev/null 2>&1
 
-        local result_file=`get_tempfile`
-        decho "Vim result output = $result_file"
-        {
-            echo "let g:ARGS = $args"
-            echo "so $script"
-            echo "write! $result_file"
-            $AUTO_QUIT && vim_quit
-        } | $EX
-        cat "$result_file"
-    else
-        local f args
-        args=()
-        for f in "$@"; do
-            local arg=`get_tempfile`
-            cat "$f" >"$arg"
-            args=("${args[@]}" "$arg")
-        done
-        decho "ex arguments: [${args[@]}]"
-        cat "$script" | $EX "${args[@]}"
-        cat "${args[@]}"
-    fi
+    # Output Vim result output.
+    cat "$result_file"
 }
 
 build_ex_command() {
@@ -139,7 +118,6 @@ main() {
     # Remove all messed up tempfiles at exit...
     trap 'remove_all_tempfiles' EXIT
 
-    $IS_SCRIPT_MODE && decho "-s supplied: enabled script mode"
     build_ex_command
 
     local scripts
@@ -158,8 +136,11 @@ main() {
         scripts=($scripts "$s")
     done
 
-    # Get script files.
-    scripts=($scripts "$@")
+    # Get the script file.
+    if [ $# -ne 0 ]; then
+        scripts=($scripts "$1")
+        shift
+    fi
 
     # If no scripts run, run interactive ex (like Python).
     if [ "${#scripts[@]}" -eq 0 ]; then
@@ -169,7 +150,9 @@ main() {
     fi
 
     # Run scripts.
-    run_file "${scripts[@]}"
+    for s in "${scripts[@]}"; do
+        run_file "$s" "$@"
+    done
 }
 
 
@@ -188,7 +171,6 @@ EX_VIMINFO=NONE
 EX_QUIET="$false"
 
 EVAL_CODES=()
-IS_SCRIPT_MODE="$false"
 
 
 while getopts hvWQCpu:i:qe:s opt; do
@@ -202,7 +184,6 @@ while getopts hvWQCpu:i:qe:s opt; do
         i) EX_VIMINFO="$OPTARG" ;;
         q) EX_QUIET="$true" ;;
         e) EVAL_CODES=("${EVAL_CODES[@]}" "$OPTARG") ;;
-        s) IS_SCRIPT_MODE="$true" ;;
         h) usage ;;
         ?) usage ;;
     esac
