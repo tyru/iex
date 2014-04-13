@@ -104,7 +104,7 @@ run_script() {
 }
 
 build_ex_command() {
-    EX="ex"
+    EX="vim -e"
     if ! $EX_COMPATIBLE; then
         EX="$EX -N"
     fi
